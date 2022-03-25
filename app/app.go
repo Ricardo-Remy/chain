@@ -367,16 +367,14 @@ func New(
 		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
-		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
+		AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
+		AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.WasmKeeper, wasm.EnableAllProposals))
 
 	govKeeper := govkeeper.NewKeeper(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
 		app.StakingKeeper, govRouter,
 	)
-
-	// Register the CosmWasm governance hooks
-	govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.WasmKeeper, wasm.EnableAllProposals))
-
+	
 	app.EvidenceKeeper = evidencekeeper.NewKeeper(appCodec, keys[evidencetypes.StoreKey], app.StakingKeeper, app.SlashingKeeper)
 
 	app.AirdropKeeper = airdropkeeper.NewKeeper(appCodec, keys[airdroptypes.StoreKey], keys[airdroptypes.MemStoreKey], app.AccountKeeper, app.BankKeeper, *app.StakingKeeper, app.DistrKeeper)
